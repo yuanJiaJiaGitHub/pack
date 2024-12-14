@@ -29,6 +29,7 @@ fi
 
 
 # 复制库文件的函数
+declare -A processed_files
 copy_libs() {
     local origin_file_path=$1
     # 解析符号链接
@@ -36,16 +37,29 @@ copy_libs() {
         origin_file_path=$(readlink -f "$origin_file_path")
     fi
     origin_file_path=$(echo "$origin_file_path" | awk '{$1=$1};1')
+
+    # 跳过已处理的文件
+    hashstr=$(md5sum $origin_file_path | awk '{print $1}')
+    if [ -n "${processed_files[$hashstr]}" ]; then
+        return;
+    fi
+
+    # 如果目标文件不存在，则复制它
     local bname=$(basename "$origin_file_path")
     local target_path="${targetPackLibDir}/${bname}"
-    # 如果目标文件不存在，则复制它
     if [ ! -f "$target_path" ]; then
         echo "已提取文件 ${origin_file_path} 到 ${target_path}"
         sudo cp "$origin_file_path" "$target_path"
     fi
-    # 查找并复制依赖项
+
+    # 标记文件为已处理
+    processed_files[$hashstr]=1
+
+    # 继续查找并复制依赖项
     local childDepends=$(ldd $origin_file_path | awk '{
-        if(match($0, /\/.* \(0x/)) {
+        if(match($0, /=> \/.* \(0x/)) {
+            print substr($0, RSTART+3, RLENGTH-6)
+        }else if(match($0, /\/.* \(0x/)){
             print substr($0, RSTART, RLENGTH-3)
         }
     }');
@@ -63,7 +77,9 @@ if [ ! -f "$targetPackdir/$packname" ]; then
     sudo cp "$originPackpath" "$targetPackdir"
 fi
 childDepends=$(ldd $originPackpath | awk '{
-    if(match($0, /\/.* \(0x/)) {
+    if(match($0, /=> \/.* \(0x/)) {
+        print substr($0, RSTART+3, RLENGTH-6)
+    }else if(match($0, /\/.* \(0x/)){
         print substr($0, RSTART, RLENGTH-3)
     }
 }');
