@@ -44,8 +44,8 @@ copy_libs() {
     fi
     # 查找并复制依赖项
     local childDepends=$(ldd $origin_file_path | awk '{
-        if(match($0, /\/.* /)) {
-            print substr($0, RSTART, RLENGTH)
+        if(match($0, /\/.* \(0x/)) {
+            print substr($0, RSTART, RLENGTH-3)
         }
     }');
     if [ -n "$childDepends" ]; then
@@ -62,8 +62,8 @@ if [ ! -f "$targetPackdir/$packname" ]; then
     sudo cp "$originPackpath" "$targetPackdir"
 fi
 childDepends=$(ldd $originPackpath | awk '{
-    if(match($0, /\/.* /)) {
-        print substr($0, RSTART, RLENGTH)
+    if(match($0, /\/.* \(0x/)) {
+        print substr($0, RSTART, RLENGTH-3)
     }
 }');
 if [ -n "$childDepends" ]; then
