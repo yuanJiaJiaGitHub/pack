@@ -30,7 +30,6 @@ fi
 
 # 复制库文件的函数
 firstRowInfo=""
-declare -A processed_files
 copy_libs() {
     local origin_file_path=$1
     # 解析符号链接
@@ -38,25 +37,21 @@ copy_libs() {
         origin_file_path=$(readlink -f "$origin_file_path")
     fi
     origin_file_path=$(echo "$origin_file_path" | awk '{$1=$1};1')
-
-    # 打印当前正在处理的文件
+    local bname=$(basename "$origin_file_path")
+    local target_path="${targetPackLibDir}/${bname}"
     local chain=$2
 
     # 跳过已处理的文件
-    # hashstr=$(echo -n "$origin_file_path" | md5sum | awk '{print $1}')
-    hashstr=$(md5sum $origin_file_path | awk '{print $1}')
-    if [ -n "${processed_files[$hashstr]}" ]; then
+    originHashStr=$(md5sum $origin_file_path | awk '{print $1}')
+    targetHashStr=$(md5sum $target_path 2>/dev/null | awk '{print $1}')
+    if [[ "$originHashStr" == "$targetHashStr" ]]; then
         echo "已忽略: ${chain}"
         return;
     fi
 
-    # 标记文件为已处理
-    processed_files[$hashstr]="processed"
-    echo "处理中: ${chain}"
 
+    echo "处理中: ${chain}"
     # 如果目标文件不存在，则复制它
-    local bname=$(basename "$origin_file_path")
-    local target_path="${targetPackLibDir}/${bname}"
     if [ ! -f "$target_path" ]; then
         sudo cp "$origin_file_path" "$target_path"
         echo "已提取: ${chain}"
