@@ -43,14 +43,15 @@ copy_libs() {
     local chain=$2
 
     # 跳过已处理的文件
-    hashstr=$(echo -n "$origin_file_path" | md5sum | awk '{print $1}')
+    # hashstr=$(echo -n "$origin_file_path" | md5sum | awk '{print $1}')
+    hashstr=$(md5sum $origin_file_path | awk '{print $1}')
     if [ -n "${processed_files[$hashstr]}" ]; then
         echo "已忽略: ${chain}"
         return;
     fi
 
     # 标记文件为已处理
-    processed_files[$hashstr]=1
+    processed_files[$hashstr]="processed"
     echo "处理中: ${chain}"
 
     # 如果目标文件不存在，则复制它
