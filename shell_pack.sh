@@ -29,6 +29,7 @@ fi
 
 
 # 复制库文件的函数
+firstRowInfo=""
 declare -A processed_files
 copy_libs() {
     local origin_file_path=$1
@@ -37,6 +38,9 @@ copy_libs() {
         origin_file_path=$(readlink -f "$origin_file_path")
     fi
     origin_file_path=$(echo "$origin_file_path" | awk '{$1=$1};1')
+    shortFirstRowInfo=${firstRowInfo:0:64}
+    printf "\r%-64s" "$shortFirstRowInfo"
+    printf " "
 
     # 跳过已处理的文件
     hashstr=$(echo -n "$origin_file_path" | md5sum | awk '{print $1}')
@@ -86,6 +90,7 @@ childDepends=$(ldd $originPackpath | awk '{
 }');
 if [ -n "$childDepends" ]; then
     echo "$childDepends" | while IFS= read -r line; do
+        firstRowInfo="$line"
         copy_libs "$line"
     done
 fi
