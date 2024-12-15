@@ -18,6 +18,7 @@ if [ -L "$originPackpath" ]; then
     originPackpath=$(readlink -f "$originPackpath")
 fi
 
+
 scriptRootDir=$(pwd)
 targetPackdir="${scriptRootDir}/${packname}"
 targetPackLibDir="${targetPackdir}/lib"
@@ -71,6 +72,7 @@ if [ -n "$childDepends" ]; then
         copy_libs "$line"
     done
 fi
+
 
 # 创建启动脚本
 ldLibraryPath="export LD_LIBRARY_PATH=${targetPackLibDir}:\${LD_LIBRARY_PATH}"
