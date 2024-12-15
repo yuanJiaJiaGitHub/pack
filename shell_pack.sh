@@ -41,25 +41,26 @@ copy_libs() {
 
     # 打印当前正在处理的文件
     local chain=$2
-    echo "$chain"
 
     # 跳过已处理的文件
     hashstr=$(echo -n "$origin_file_path" | md5sum | awk '{print $1}')
     if [ -n "${processed_files[$hashstr]}" ]; then
-        # echo "已忽略重复的库文件 ${origin_file_path}"
+        echo "已忽略: ${chain}"
         return;
     fi
+
+    # 标记文件为已处理
+    processed_files[$hashstr]=1
+    echo "处理中: ${chain}"
 
     # 如果目标文件不存在，则复制它
     local bname=$(basename "$origin_file_path")
     local target_path="${targetPackLibDir}/${bname}"
     if [ ! -f "$target_path" ]; then
         sudo cp "$origin_file_path" "$target_path"
-        # echo "已提取文件 ${origin_file_path} 到 ${target_path}"
+        echo "已提取: ${chain}"
     fi
 
-    # 标记文件为已处理
-    processed_files[$hashstr]=1
 
     # 继续查找并复制依赖项
     local childDepends=$(ldd $origin_file_path | awk '{
