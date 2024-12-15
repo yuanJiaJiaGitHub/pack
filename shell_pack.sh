@@ -38,14 +38,15 @@ copy_libs() {
         origin_file_path=$(readlink -f "$origin_file_path")
     fi
     origin_file_path=$(echo "$origin_file_path" | awk '{$1=$1};1')
-    shortFirstRowInfo=${firstRowInfo:0:64}
-    printf "\r%-64s" "$shortFirstRowInfo"
-    printf " "
+
+    # 打印当前正在处理的文件
+    local chain=$2
+    echo "$chain"
 
     # 跳过已处理的文件
     hashstr=$(echo -n "$origin_file_path" | md5sum | awk '{print $1}')
     if [ -n "${processed_files[$hashstr]}" ]; then
-        echo "已忽略重复的库文件 ${origin_file_path}"
+        # echo "已忽略重复的库文件 ${origin_file_path}"
         return;
     fi
 
@@ -54,7 +55,7 @@ copy_libs() {
     local target_path="${targetPackLibDir}/${bname}"
     if [ ! -f "$target_path" ]; then
         sudo cp "$origin_file_path" "$target_path"
-        echo "已提取文件 ${origin_file_path} 到 ${target_path}"
+        # echo "已提取文件 ${origin_file_path} 到 ${target_path}"
     fi
 
     # 标记文件为已处理
@@ -70,7 +71,7 @@ copy_libs() {
     }');
     if [ -n "$childDepends" ]; then
         echo "$childDepends" | while IFS= read -r line; do
-            copy_libs "$line"
+            copy_libs "$line" "${chain}=>$(basename $line)"
         done
     fi
 }
@@ -90,8 +91,7 @@ childDepends=$(ldd $originPackpath | awk '{
 }');
 if [ -n "$childDepends" ]; then
     echo "$childDepends" | while IFS= read -r line; do
-        firstRowInfo="$line"
-        copy_libs "$line"
+        copy_libs "$line" "$(basename $line)"
     done
 fi
 
