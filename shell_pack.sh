@@ -41,6 +41,7 @@ copy_libs() {
     # 跳过已处理的文件
     hashstr=$(echo -n "$origin_file_path" | md5sum | awk '{print $1}')
     if [ -n "${processed_files[$hashstr]}" ]; then
+        echo "已忽略重复的库文件 ${origin_file_path}"
         return;
     fi
 
