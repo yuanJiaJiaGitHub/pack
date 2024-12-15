@@ -72,7 +72,7 @@ copy_libs() {
     }');
     if [ -n "$childDepends" ]; then
         echo "$childDepends" | while IFS= read -r line; do
-            copy_libs "$line" "${chain}  $(basename $line)"
+            copy_libs "$line" "${chain}.$(basename $line)"
         done
     fi
 }
