@@ -39,7 +39,7 @@ copy_libs() {
     origin_file_path=$(echo "$origin_file_path" | awk '{$1=$1};1')
 
     # 跳过已处理的文件
-    hashstr=$(md5sum $origin_file_path | awk '{print $1}')
+    hashstr=$(echo -n "$origin_file_path" | md5sum | awk '{print $1}')
     if [ -n "${processed_files[$hashstr]}" ]; then
         return;
     fi
@@ -48,8 +48,8 @@ copy_libs() {
     local bname=$(basename "$origin_file_path")
     local target_path="${targetPackLibDir}/${bname}"
     if [ ! -f "$target_path" ]; then
-        echo "已提取文件 ${origin_file_path} 到 ${target_path}"
         sudo cp "$origin_file_path" "$target_path"
+        echo "已提取文件 ${origin_file_path} 到 ${target_path}"
     fi
 
     # 标记文件为已处理
@@ -73,8 +73,8 @@ copy_libs() {
 
 # 复制主可执行文件并查找其依赖项
 if [ ! -f "$targetPackdir/$packname" ]; then
-    echo "已提取文件 ${originPackpath} 到 ${targetPackdir}/${packname}"
     sudo cp "$originPackpath" "$targetPackdir"
+    echo "已提取文件 ${originPackpath} 到 ${targetPackdir}/${packname}"
 fi
 childDepends=$(ldd $originPackpath | awk '{
     if(match($0, /=> \/.* \(0x/)) {
@@ -104,4 +104,8 @@ sudo chown -R "${username}:${groupname}" "$targetPackdir"
 sudo chmod -R 755 "$targetPackdir"
 
 
+lib_count=$(find $targetPackLibDir -type f | wc -l)
+echo ""
+echo "已提取出 1 个主程序文件, 和 ${lib_count} 个依赖库文件."
+echo "打包已完成, 执行 ${packname}-launch.sh 脚本启动程序."
 exit 0
