@@ -94,9 +94,14 @@ fi
 
 
 # 创建启动脚本
-ldLibraryPath="export LD_LIBRARY_PATH=${targetPackLibDir}:\${LD_LIBRARY_PATH}"
-exct="./${packname}"
-launchStr="#!/bin/bash\n${ldLibraryPath}\n${exct}\n"
+launchStr=$(cat <<EOF
+#!/bin/bash
+runroot=\$(pwd)
+export LD_LIBRARY_PATH=\${runroot}/lib:\${LD_LIBRARY_PATH}
+echo \${LD_LIBRARY_PATH}
+./${packname}
+EOF
+)
 echo -e "$launchStr" > "${targetPackdir}/launch-${packname}.sh";
 
 
