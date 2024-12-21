@@ -97,7 +97,7 @@ fi
 ldLibraryPath="export LD_LIBRARY_PATH=${targetPackLibDir}:\${LD_LIBRARY_PATH}"
 exct="./${packname}"
 launchStr="#!/bin/bash\n${ldLibraryPath}\n${exct}\n"
-echo -e "$launchStr" > "${targetPackdir}/${packname}-launch.sh";
+echo -e "$launchStr" > "${targetPackdir}/launch-${packname}.sh";
 
 
 # 更改属主和权限（需要超级用户权限）
@@ -110,5 +110,5 @@ sudo chmod -R 755 "$targetPackdir"
 lib_count=$(find $targetPackLibDir -type f | wc -l)
 echo ""
 echo "已提取出 1 个主程序文件, 和 ${lib_count} 个依赖库文件."
-echo "打包已完成, 执行 ${packname}-launch.sh 脚本启动程序."
+echo "打包已完成, 执行 launch-${packname}.sh 脚本启动程序."
 exit 0
