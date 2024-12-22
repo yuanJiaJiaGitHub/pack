@@ -165,6 +165,8 @@ OS:=$(shell uname -s)
 OS_NCASE:=$(shell uname -s | tr '[A-Z]' '[a-z]')
 CPU:=$(shell uname -m)
 
+@echo "docs written into: '$(CPU)'"
+
 # # Use our OS and CPU architecture naming conventions.
 # ifeq ($(CPU),x86_64)
 # 	CPU:=x64
