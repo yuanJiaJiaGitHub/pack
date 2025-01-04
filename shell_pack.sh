@@ -9,6 +9,12 @@ fi
 
 packname=$1
 originPackpath=$(which $packname)
+
+if [ -f "$1" ]; then
+    packname=$(basename $1)
+    originPackpath=$1
+fi
+
 # 检查是否找到了可执行文件
 if [ -z "$originPackpath" ]; then
     echo "Error: Cannot find executable for $packname"
