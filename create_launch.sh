@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 检查是否提供了参数
+# 检查是否提供了参数数
 if [ -z "$1" ]; then
     echo "Usage: $0 <packname>"
     exit 1
